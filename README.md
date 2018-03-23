@@ -1,1 +1,2 @@
-pypw - simple password generator on python
+#pypw
+Simple password generator on python.
