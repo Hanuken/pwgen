@@ -1,29 +1,52 @@
 #!/usr/bin/python3
 import sys
 import random
+import argparse
 
-defLength = 12
-num = 24
-pwLengthRange = (2, 64)
+config = {
+	'strLen'	:	50,
+	'rows'		:	8,
+}
 
-alphabet = ('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 
-'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 
-'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
+def main():
+	parser = argparse.ArgumentParser(description='pypw. A simple password generator. https://github.com/hanuken/pypw')
 
-try:
-	length = int(sys.argv[1])
-except (ValueError, IndexError):
-	length = defLength
-	print('Warning! Password length must be int. Using default value - ' + str(defLength))
-	length = defLength
+	parser.add_argument('length', type=int, default=12, nargs='?', help='length of password')
 
-if  length < pwLengthRange[0] or length > pwLengthRange[1]:
-	print('Warning! Password length must be less than ' + str(pwLengthRange[0]) + ' and more than ' + 
-str(pwLengthRange[1]) + '. Using default value - ' + str(defLength) + '.')
-	length = defLength
+	parser.add_argument('-l', '--letters', help='use letters', action="store_true")
+	parser.add_argument('-n', '--numbers', help='use numbers', action="store_true")
+	parser.add_argument('-c', '--chars', help='use chars', action="store_true")
 
-for i in range(0, num):
-		password = []
-		for i in range(0, length):
-			password.append(alphabet[random.randint(0, len(alphabet) - 1)])
-		print(''.join(str(i) for i in password))
+	parser.add_argument('-d', '--dictionary', help='show dictionary, that used for password generation', action="store_true")
+
+	parser.add_argument('-s', '--string', help='return 128 random symbols instead a group of passwords (you can choose and copy a random range from it)', action="store_true")
+
+	args = parser.parse_args()
+
+	random_sec = random.SystemRandom()
+
+	unicodeDecLetters = [n for n in range(65, 91)] + [n for n in range(97, 123)]
+
+	letters = [chr(n) for n in unicodeDecLetters]
+	numbers = [num for num in range(10)]
+	special_chars = [char for char in "~!@#$%^&*()_+`-={}[]:;<>./'"]
+
+	dictionary = []
+	if args.letters: dictionary = dictionary + letters
+	if args.numbers: dictionary = dictionary + numbers
+	if args.chars: dictionary = dictionary + special_chars
+	if not len(dictionary): dictionary = letters + numbers + special_chars
+
+	if args.dictionary: print('Dictionary: ', str(dictionary))
+
+	passInRow = round(config['strLen'] / args.length) + 1
+
+	if args.string:
+		print(''.join([str(random_sec.choice(dictionary)) for x in range(129)]))
+
+	else:
+		for row in range(config['rows']):
+			print(' '.join([''.join([str(random_sec.choice(dictionary)) for x in range(args.length)]) for y in range(passInRow)]))
+
+if __name__ == '__main__':
+	main()
