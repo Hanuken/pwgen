@@ -39,6 +39,8 @@ def main():
 
 	if args.dictionary: print('Dictionary: ', str(dictionary))
 
+	if args.length <= 0: args.length = 12
+
 	passInRow = round(config['strLen'] / args.length) + 1
 
 	if args.string:
